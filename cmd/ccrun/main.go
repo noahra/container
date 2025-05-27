@@ -18,3 +18,8 @@ func main() {
 		fmt.Print(string(output))
 	}
 }
+
+func clone(cmd *exec.Cmd) {
+	// run in new hostname and NIS domain. take in memory stack as well
+
+}
