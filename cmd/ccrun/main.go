@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -8,9 +9,25 @@ import (
 )
 
 func main() {
-	argsWithoutProg := os.Args[1:]
+	rFlag := flag.Bool("r", false, "Enable r option")
+	flag.Parse()
+	args := flag.Args()
+	fmt.Printf("Remaining args: %v\n", args)
+	if *rFlag {
+		println("checkpoint2")
+		setHostname("container123")
+		executeCommand(args[1:])
+	} else {
+		println("checkpoint1")
+		createUtsNameSpace()
+		commands := append([]string{"./main", "-r"}, args[1:]...)
+		fmt.Println(commands)
+		executeCommand(commands)
+		fmt.Println("hmm")
+	}
+}
 
-	exec.Command("/bin/bash")
+func createUtsNameSpace() {
 	cmd := exec.Cmd{
 		Path:   "/bin/bash",
 		Stdin:  os.Stdin,
@@ -23,20 +40,24 @@ func main() {
 	if err := cmd.Run(); err != nil {
 		fmt.Println(err)
 	}
+}
 
-	if len(argsWithoutProg) >= 2 && argsWithoutProg[0] == "run" {
-
-		// clone()
-		// call command inside namespace
-		executeCommand(argsWithoutProg)
+func setHostname(hostname string) {
+	if err := syscall.Sethostname([]byte(hostname)); err != nil {
+		fmt.Printf("Failed to set hostname: %v\n", err)
+		return
 	}
+	fmt.Printf("Hostname set to: %s\n", hostname)
 }
 
 func executeCommand(args []string) {
-	cmd := exec.Command(args[1], args[2:]...)
-	output, err := cmd.Output()
-	if err != nil {
-		panic(err)
+	fmt.Println("args: ", args)
+	if len(args) >= 2 {
+		cmd := exec.Command(args[0], args[1:]...)
+		output, err := cmd.Output()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Print(string(output))
 	}
-	fmt.Print(string(output))
 }
