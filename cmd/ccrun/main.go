@@ -4,22 +4,39 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"syscall"
 )
 
 func main() {
 	argsWithoutProg := os.Args[1:]
 
+	exec.Command("/bin/bash")
+	cmd := exec.Cmd{
+		Path:   "/bin/bash",
+		Stdin:  os.Stdin,
+		Stdout: os.Stdout,
+		Stderr: os.Stderr,
+		SysProcAttr: &syscall.SysProcAttr{
+			Cloneflags: syscall.CLONE_NEWUTS,
+		},
+	}
+	if err := cmd.Run(); err != nil {
+		fmt.Println(err)
+	}
+
 	if len(argsWithoutProg) >= 2 && argsWithoutProg[0] == "run" {
-		cmd := exec.Command(argsWithoutProg[1], argsWithoutProg[2:]...)
-		output, err := cmd.Output()
-		if err != nil {
-			panic(err)
-		}
-		fmt.Print(string(output))
+
+		// clone()
+		// call command inside namespace
+		executeCommand(argsWithoutProg)
 	}
 }
 
-func clone(cmd *exec.Cmd) {
-	// run in new hostname and NIS domain. take in memory stack as well
-
+func executeCommand(args []string) {
+	cmd := exec.Command(args[1], args[2:]...)
+	output, err := cmd.Output()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Print(string(output))
 }
