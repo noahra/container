@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"syscall"
+	"os/exec"
 )
 
-func setHostname(hostname string) {
-	if err := syscall.Sethostname([]byte(hostname)); err != nil {
-		fmt.Printf("Failed to set hostname: %v\n", err)
-		return
+func executeCommand(args []string) {
+	cmd := exec.Command(args[0], args[1:]...)
+	output, err := cmd.Output()
+	if err != nil {
+		panic(err)
 	}
-	fmt.Printf("Hostname set to: %s\n", hostname)
+	fmt.Print(string(output))
 }
