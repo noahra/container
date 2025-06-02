@@ -35,7 +35,6 @@ func createUtsNameSpace(args []string) {
 		fmt.Println(err)
 	}
 }
-
 func setHostname(hostname string) {
 	if err := syscall.Sethostname([]byte(hostname)); err != nil {
 		fmt.Printf("Failed to set hostname: %v\n", err)
