@@ -12,24 +12,18 @@ func main() {
 	rFlag := flag.Bool("r", false, "Enable r option")
 	flag.Parse()
 	args := flag.Args()
-	fmt.Printf("Remaining args: %v\n", args)
 	if *rFlag {
-		println("checkpoint2")
 		setHostname("container123")
-		executeCommand(args[1:])
+		executeCommand(args)
 	} else {
-		println("checkpoint1")
-		createUtsNameSpace()
-		commands := append([]string{"./main", "-r"}, args[1:]...)
-		fmt.Println(commands)
-		executeCommand(commands)
-		fmt.Println("hmm")
+		createUtsNameSpace(args)
 	}
 }
 
-func createUtsNameSpace() {
+func createUtsNameSpace(args []string) {
 	cmd := exec.Cmd{
-		Path:   "/bin/bash",
+		Path:   "/proc/self/exe", // Just the executable path as a string
+		Args:   append([]string{"/proc/self/exe", "-r"}, args[1:]...),
 		Stdin:  os.Stdin,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
@@ -51,13 +45,11 @@ func setHostname(hostname string) {
 }
 
 func executeCommand(args []string) {
-	fmt.Println("args: ", args)
-	if len(args) >= 2 {
-		cmd := exec.Command(args[0], args[1:]...)
-		output, err := cmd.Output()
-		if err != nil {
-			panic(err)
-		}
-		fmt.Print(string(output))
+	cmd := exec.Command(args[0], args[1:]...)
+	output, err := cmd.Output()
+	if err != nil {
+		panic(err)
 	}
+	fmt.Print(string(output))
+
 }
