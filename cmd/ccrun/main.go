@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 )
 
 func main() {
@@ -10,7 +11,10 @@ func main() {
 	args := flag.Args()
 	if *rFlag {
 		setHostname("container123")
-		executeCommand(args)
+		err := executeCommand(args)
+		if err != nil {
+			fmt.Printf("error occured when executing command: %s", err)
+		}
 	} else {
 		createUtsNameSpace(args)
 	}
