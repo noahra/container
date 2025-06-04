@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"syscall"
 )
 
@@ -29,4 +30,20 @@ func setHostname(hostname string) {
 		return
 	}
 	fmt.Printf("Hostname set to: %s\n", hostname)
+}
+
+func setChroot(path string) error {
+	absolutePath, err := filepath.Abs(path)
+	if err != nil {
+		return fmt.Errorf("failed to set absolute path with path: %s: %w", path, err)
+	}
+	if err = os.Chdir(path); err != nil {
+		return fmt.Errorf("failed to change to directory %s: %v", path, err)
+	}
+
+	if err = syscall.Chroot(absolutePath); err != nil {
+		return fmt.Errorf("failed to chroot to %s: %v", path, err)
+	}
+
+	return nil
 }
