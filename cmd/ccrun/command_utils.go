@@ -1,16 +1,16 @@
 package main
 
 import (
-	"fmt"
+	"os"
 	"os/exec"
 )
 
 func executeCommand(args []string) error {
 	cmd := exec.Command(args[0], args[1:]...)
-	output, err := cmd.Output()
-	if err != nil {
-		return err
-	}
-	fmt.Print(string(output))
-	return nil
+
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	return cmd.Run()
 }
