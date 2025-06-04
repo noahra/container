@@ -1,31 +1,73 @@
-# Variables
-PROJECT_NAME=ccrun
-BINARY_DIR=bin
-CMD_DIR=cmd/ccrun
-MAIN_FILE=$(CMD_DIR)/main.go
-BINARY_PATH=$(BINARY_DIR)/$(PROJECT_NAME)
+# Makefile for ccrun - Docker clone project
 
-# Default target
-all: build
+# Binary name
+BINARY_NAME=ccrun
 
-# Create bin directory if it doesn't exist
-$(BINARY_DIR):
-	mkdir -p $(BINARY_DIR)
+# Go parameters
+GOCMD=go
+GOBUILD=$(GOCMD) build
+GOCLEAN=$(GOCMD) clean
+GOTEST=$(GOCMD) test
+GOGET=$(GOCMD) get
+GOMOD=$(GOCMD) mod
+
+# Source directory
+SRC_DIR=./cmd/ccrun
 
 # Build the binary
-build: $(BINARY_DIR)
-	go build -o $(BINARY_PATH) $(MAIN_FILE)
+build:
+	$(GOBUILD) -o $(BINARY_NAME) $(SRC_DIR)
 
-# Run the program with "echo hello" arguments
-run: build
-	$(BINARY_PATH) echo hello
+# Build for Linux (useful if developing on different OS)
+build-linux:
+	GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(BINARY_NAME) $(SRC_DIR)
 
-# Clean up the binary
+# Clean build artifacts
 clean:
-	rm -f $(BINARY_PATH)
+	$(GOCLEAN)
+	rm -f $(BINARY_NAME)
 
-# Test target: build, run with echo hello, then clean
-test: build run clean
+# Run tests
+test:
+	$(GOTEST) -v ./...
 
-# Declare phony targets (targets that don't represent files)
-.PHONY: all build run clean test
+# Download dependencies
+deps:
+	$(GOMOD) download
+	$(GOMOD) tidy
+
+# Install the binary to $GOPATH/bin
+install: build
+	cp $(BINARY_NAME) $(GOPATH)/bin/
+
+# Run the binary (example usage)
+run: build
+	./$(BINARY_NAME)
+
+# Development build with debug info
+debug:
+	$(GOBUILD) -gcflags="-N -l" -o $(BINARY_NAME) $(SRC_DIR)
+
+# Build with all optimizations disabled for debugging
+dev:
+	$(GOBUILD) -race -o $(BINARY_NAME) $(SRC_DIR)
+
+# Show help
+help:
+	@echo "Available targets:"
+	@echo "  build       - Build the ccrun binary"
+	@echo "  build-linux - Build for Linux (cross-compile)"
+	@echo "  clean       - Remove build artifacts"
+	@echo "  test        - Run tests"
+	@echo "  deps        - Download and tidy dependencies"
+	@echo "  install     - Install binary to GOPATH/bin"
+	@echo "  run         - Build and run the binary"
+	@echo "  debug       - Build with debug symbols"
+	@echo "  dev         - Build with race detection"
+	@echo "  help        - Show this help message"
+
+# Default target
+.DEFAULT_GOAL := build
+
+# Declare phony targets
+.PHONY: build build-linux clean test deps install run debug dev help
