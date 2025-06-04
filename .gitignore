@@ -3,10 +3,7 @@ alpine_fs/
 
 # IDE files
 modules.xml
-vcs.xml
-
-# Go binary
-ccrun
+vcs.xml 
 
 # Go build artifacts
 *.exe

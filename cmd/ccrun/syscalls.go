@@ -34,25 +34,29 @@ func setHostname(hostname string) {
 
 func setChroot(path string) error {
 	absolutePath, err := filepath.Abs(path)
-	fmt.Println("absolutePath: ", absolutePath)
-	if err := os.Chdir(path); err != nil {
-		return fmt.Errorf("failed to change to directory %s: %v", path, err)
-	}
 	if err != nil {
 		return fmt.Errorf("failed to set absolute path with path: %s: %w", path, err)
 	}
 
+	if err := os.Chdir(absolutePath); err != nil {
+		return fmt.Errorf("failed to change to directory %s: %w", path, err)
+	}
+
 	if err = syscall.Chroot(absolutePath); err != nil {
-		return fmt.Errorf("failed to chroot to %s: %v", path, err)
+		return fmt.Errorf("failed to chroot to %s: %w", path, err)
 	}
 
 	return nil
 }
-func mountProc() {
-	absolutePathToProcFolder, _ := filepath.Abs("proc")
-	if err := syscall.Mount("proc", absolutePathToProcFolder, "proc", 0, ""); err != nil {
-		fmt.Printf("Failed to mount /proc: %v\n", err)
-		return
+func mountProc() error {
+	const proc = "proc"
+	absolutePathToProcFolder, err := filepath.Abs(proc)
+	if err != nil {
+		return fmt.Errorf("failed to parse absolute path to proc folder: %w", err)
+	}
+	if err := syscall.Mount(proc, absolutePathToProcFolder, proc, 0, ""); err != nil {
+		return fmt.Errorf("failed to mount /proc: %w", err)
 	}
 	fmt.Printf("Proc mounted")
+	return nil
 }

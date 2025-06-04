@@ -11,9 +11,15 @@ func main() {
 	args := flag.Args()
 	if *rFlag {
 		setHostname("container123")
-		setChroot("alpine_fs")
-		mountProc()
-		err := executeCommand(args)
+		err := setChroot("alpine_fs")
+		if err != nil {
+			fmt.Printf("error occured when executing chroot: %s", err)
+		}
+		err = mountProc()
+		if err != nil {
+			fmt.Printf("error occured when mounting /proc: %s", err)
+		}
+		err = executeCommand(args)
 		if err != nil {
 			fmt.Printf("error occured when executing command: %s", err)
 		}
