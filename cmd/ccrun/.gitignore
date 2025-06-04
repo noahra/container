@@ -1,0 +1,28 @@
+# Alpine filesystem directory
+alpine_fs/
+
+# IDE files
+modules.xml
+vcs.xml
+
+# Go binary
+ccrun
+
+# Go build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# IDE directories
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
