@@ -24,6 +24,6 @@ func main() {
 			fmt.Printf("error occured when executing command: %s", err)
 		}
 	} else {
-		createUtsNameSpace(args)
+		createNameSpaces(args)
 	}
 }

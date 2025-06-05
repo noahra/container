@@ -8,7 +8,7 @@ import (
 	"syscall"
 )
 
-func createUtsNameSpace(args []string) {
+func createNameSpaces(args []string) {
 	cmd := exec.Cmd{
 		Path:   "/proc/self/exe", // Just the executable path as a string
 		Args:   append([]string{"/proc/self/exe", "-r"}, args[1:]...),
