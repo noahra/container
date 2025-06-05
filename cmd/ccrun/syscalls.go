@@ -60,3 +60,12 @@ func mountProc() error {
 	fmt.Printf("Proc mounted")
 	return nil
 }
+
+func unShareMount() error {
+	if err := syscall.Unshare(syscall.CLONE_NEWNS); err != nil {
+		fmt.Printf("Failed to unshare mountspace: %v\n", err)
+		return err
+	}
+	fmt.Printf("mountname unshared")
+	return nil
+}

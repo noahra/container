@@ -15,6 +15,10 @@ func main() {
 		if err != nil {
 			fmt.Printf("error occured when executing chroot: %s", err)
 		}
+		err = unShareMount()
+		if err != nil {
+			fmt.Printf("error occured when unsharing mount: %s", err)
+		}
 		err = mountProc()
 		if err != nil {
 			fmt.Printf("error occured when mounting /proc: %s", err)
