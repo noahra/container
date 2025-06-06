@@ -24,12 +24,13 @@ func createNameSpaces(args []string) {
 	}
 }
 
-func setHostname(hostname string) {
+func setHostname(hostname string) error {
 	if err := syscall.Sethostname([]byte(hostname)); err != nil {
 		fmt.Printf("Failed to set hostname: %v\n", err)
-		return
+		return err
 	}
 	fmt.Printf("Hostname set to: %s\n", hostname)
+	return nil
 }
 
 func setChroot(path string) error {

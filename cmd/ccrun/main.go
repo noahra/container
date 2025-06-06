@@ -10,8 +10,11 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 	if *rFlag {
-		setHostname("container123")
-		err := setChroot("alpine_fs")
+		err := setHostname("container123")
+		if err != nil {
+			fmt.Printf("error occured when setting hostname (creating uts ns): %s", err)
+		}
+		err = setChroot("alpine_fs")
 		if err != nil {
 			fmt.Printf("error occured when executing chroot: %s", err)
 		}
