@@ -10,11 +10,7 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 	if *rFlag {
-		err := unShareMount()
-		if err != nil {
-			fmt.Printf("error occured when unsharing mount: %s", err)
-		}
-		err = setHostname("container123")
+		err := setHostname("container123")
 		if err != nil {
 			fmt.Printf("error occured when setting hostname (creating uts ns): %s", err)
 		}

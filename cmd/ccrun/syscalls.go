@@ -16,7 +16,7 @@ func createNameSpaces(args []string) {
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
 		SysProcAttr: &syscall.SysProcAttr{
-			Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWUSER,
+			Cloneflags: syscall.CLONE_NEWUSER | syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
 			UidMappings: []syscall.SysProcIDMap{
 				{ContainerID: 0, HostID: os.Getuid(), Size: 1},
 			},
@@ -65,14 +65,5 @@ func mountProc() error {
 		return fmt.Errorf("failed to mount /proc: %w", err)
 	}
 	fmt.Printf("Proc mounted")
-	return nil
-}
-
-func unShareMount() error {
-	if err := syscall.Unshare(syscall.CLONE_NEWNS); err != nil {
-		fmt.Printf("Failed to unshare mountspace: %v\n", err)
-		return err
-	}
-	fmt.Printf("mountname unshared")
 	return nil
 }
