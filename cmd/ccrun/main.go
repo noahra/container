@@ -10,7 +10,11 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 	if *rFlag {
-		err := setHostname("container123")
+		err := unShareMount()
+		if err != nil {
+			fmt.Printf("error occured when unsharing mount: %s", err)
+		}
+		err = setHostname("container123")
 		if err != nil {
 			fmt.Printf("error occured when setting hostname (creating uts ns): %s", err)
 		}
@@ -18,14 +22,11 @@ func main() {
 		if err != nil {
 			fmt.Printf("error occured when executing chroot: %s", err)
 		}
-		err = unShareMount()
-		if err != nil {
-			fmt.Printf("error occured when unsharing mount: %s", err)
-		}
 		err = mountProc()
 		if err != nil {
 			fmt.Printf("error occured when mounting /proc: %s", err)
 		}
+
 		err = executeCommand(args)
 		if err != nil {
 			fmt.Printf("error occured when executing command: %s", err)

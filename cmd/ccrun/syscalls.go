@@ -16,7 +16,13 @@ func createNameSpaces(args []string) {
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
 		SysProcAttr: &syscall.SysProcAttr{
-			Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID,
+			Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWUSER,
+			UidMappings: []syscall.SysProcIDMap{
+				{ContainerID: 0, HostID: os.Getuid(), Size: 1},
+			},
+			GidMappings: []syscall.SysProcIDMap{
+				{ContainerID: 0, HostID: os.Getgid(), Size: 1},
+			},
 		},
 	}
 	if err := cmd.Run(); err != nil {
