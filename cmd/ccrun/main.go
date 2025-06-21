@@ -5,14 +5,28 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 func main() {
 	const HOSTNAME = "container123"
 	rFlag := flag.Bool("r", false, "Enable r option")
+	pidFlag := flag.String("pid", "", "PID to add to cgroup")
 	flag.Parse()
 	args := flag.Args()
 	if *rFlag {
+		if *pidFlag == "self" {
+			pid := os.Getpid()
+			cg(pid, HOSTNAME)
+		} else if *pidFlag != "" {
+			pid, err := strconv.Atoi(*pidFlag)
+			if err != nil {
+				fmt.Printf("Invalid PID: %s\n", err)
+				return
+			}
+			cg(pid, HOSTNAME)
+		}
+
 		err := setHostname(HOSTNAME)
 		if err != nil {
 			fmt.Printf("error occured when setting hostname (creating uts ns): %s", err)
@@ -32,7 +46,6 @@ func main() {
 		}
 	} else {
 		cmd := createNameSpaces(args)
-		cg(cmd.Process.Pid, HOSTNAME)
 		cmd.Wait()
 		cleanupCgroups(HOSTNAME)
 

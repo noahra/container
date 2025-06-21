@@ -11,7 +11,7 @@ import (
 func createNameSpaces(args []string) exec.Cmd {
 	cmd := exec.Cmd{
 		Path:   "/proc/self/exe",
-		Args:   append([]string{"/proc/self/exe", "-r"}, args[1:]...),
+		Args:   append([]string{"/proc/self/exe", "-r", "-pid", "self"}, args[1:]...),
 		Stdin:  os.Stdin,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
