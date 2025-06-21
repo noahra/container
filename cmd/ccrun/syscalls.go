@@ -8,7 +8,7 @@ import (
 	"syscall"
 )
 
-func createNameSpaces(args []string) {
+func createNameSpaces(args []string) exec.Cmd {
 	cmd := exec.Cmd{
 		Path:   "/proc/self/exe",
 		Args:   append([]string{"/proc/self/exe", "-r"}, args[1:]...),
@@ -28,6 +28,7 @@ func createNameSpaces(args []string) {
 	if err := cmd.Run(); err != nil {
 		fmt.Println(err)
 	}
+	return cmd
 }
 
 func setHostname(hostname string) error {
