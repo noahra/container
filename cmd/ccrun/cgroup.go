@@ -7,49 +7,56 @@ import (
 )
 
 func cg(pid int, hostname string) {
-	// CPU Controller
-	cpuCgroupPath := filepath.Join("/sys/fs/cgroup/cpu", hostname)
-	err := os.MkdirAll(cpuCgroupPath, 0755)
+
+	subtreeControlTreePath := "/sys/fs/cgroup"
+
+	subtreeControlFile := filepath.Join(subtreeControlTreePath, "cgroup.subtree_control")
+
+	current, err := os.ReadFile(subtreeControlFile)
 	if err != nil {
-		fmt.Printf("Error creating CPU cgroup: %s\n", err)
+		fmt.Printf("Error reading current state: %s\n", err)
+		return
+	}
+	// Parse and add new controllers (more complex logic needed here)
+	newContent := string(current) + " +pids"
+	err = os.WriteFile(subtreeControlFile, []byte(newContent), 0644)
+	if err != nil {
+		fmt.Printf("Error enabling controllers: %s\n", err)
 		return
 	}
 
-	// Set CPU limits
-	cpuQuotaFile := filepath.Join(cpuCgroupPath, "cpu.cfs_quota_us")
-	err = os.WriteFile(cpuQuotaFile, []byte("50000"), 0644)
+	hostnameCgroupPath := filepath.Join("/sys/fs/cgroup/", hostname)
+	err = os.MkdirAll(hostnameCgroupPath, 0755)
 	if err != nil {
-		fmt.Printf("Error setting CPU quota: %s\n", err)
+		fmt.Printf("Error creating container's cgroup: %s\n", err)
 		return
 	}
-
-	cpuPeriodFile := filepath.Join(cpuCgroupPath, "cpu.cfs_period_us")
-	err = os.WriteFile(cpuPeriodFile, []byte("100000"), 0644)
-	if err != nil {
-		fmt.Printf("Error setting CPU period: %s\n", err)
-		return
-	}
-	// Set PID limits
-	pidsMaxFile := filepath.Join(cpuCgroupPath, "pids.max")
-	err = os.WriteFile(pidsMaxFile, []byte("20"), 0644)
-	if err != nil {
-		fmt.Printf("Error setting PID limit: %s\n", err)
-		return
-	}
-
-	// Add PID to CPU cgroup
-	cpuProcsFile := filepath.Join(cpuCgroupPath, "cgroup.procs")
+	cpuProcsFile := filepath.Join(hostnameCgroupPath, "cgroup.procs")
 	err = os.WriteFile(cpuProcsFile, []byte(fmt.Sprintf("%d", pid)), 0644)
 	if err != nil {
 		fmt.Printf("Error adding PID to CPU cgroup: %s\n", err)
 		return
 	}
 
+	pidsMaxFile := filepath.Join(hostnameCgroupPath, "pids.max")
+	err = os.WriteFile(pidsMaxFile, []byte("20"), 0644)
+	if err != nil {
+		fmt.Printf("Error setting PIDs limit: %s\n", err)
+		return
+	}
+
+	cpuMaxFile := filepath.Join(hostnameCgroupPath, "cpu.max")
+	// "50000 100000" means 50% of one CPU (50ms out of every 100ms period)
+	err = os.WriteFile(cpuMaxFile, []byte("50000 100000"), 0644)
+	if err != nil {
+		fmt.Printf("Error setting CPU max: %s\n", err)
+		return
+	}
+
 }
 
 func cleanupCgroups(hostname string) {
-	// Clean up CPU cgroup
-	cpuCgroupPath := filepath.Join("/sys/fs/cgroup/cpu", hostname)
+	cpuCgroupPath := filepath.Join("/sys/fs/cgroup", hostname)
 	err := os.RemoveAll(cpuCgroupPath)
 	if err != nil {
 		fmt.Printf("Error removing CPU cgroup: %s\n", err)
