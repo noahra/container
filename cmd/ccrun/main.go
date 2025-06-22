@@ -31,60 +31,68 @@ func main() {
 			fmt.Printf("error occured when executing command: %s", err)
 		}
 	} else {
+		fmt.Printf("DEBUG: Creating container process...\n")
 		cmd := createNameSpaces(args)
-		cg(cmd.Process.Pid, HOSTNAME)
-		cmd.Wait()
-		cleanupCgroups(HOSTNAME)
 
+		fmt.Printf("DEBUG: Waiting for container to finish...\n")
+		if err := cmd.Start(); err != nil {
+			fmt.Println(err)
+		}
+		fmt.Printf("DEBUG: Creating cgroup from host for PID %d\n", cmd.Process.Pid)
+		cg(cmd.Process.Pid, HOSTNAME)
+
+		cmd.Wait()
+		fmt.Printf("DEBUG: Cleaning up cgroups...\n")
+
+		cleanupCgroups(HOSTNAME)
 	}
 }
-
 func cg(pid int, hostname string) {
-	// Create single cgroup directory (all controllers in one place)
-	cgroupPath := filepath.Join("/sys/fs/cgroup", hostname)
-	err := os.MkdirAll(cgroupPath, 0755)
+	// CPU Controller
+	cpuCgroupPath := filepath.Join("/sys/fs/cgroup/cpu", hostname)
+	err := os.MkdirAll(cpuCgroupPath, 0755)
 	if err != nil {
-		fmt.Printf("Error creating cgroup: %s\n", err)
+		fmt.Printf("Error creating CPU cgroup: %s\n", err)
 		return
 	}
 
-	// CPU limits
-	cpuQuotaFile := filepath.Join(cgroupPath, "cpu.cfs_quota_us")
+	// Set CPU limits
+	cpuQuotaFile := filepath.Join(cpuCgroupPath, "cpu.cfs_quota_us")
 	err = os.WriteFile(cpuQuotaFile, []byte("50000"), 0644)
 	if err != nil {
 		fmt.Printf("Error setting CPU quota: %s\n", err)
 		return
 	}
 
-	cpuPeriodFile := filepath.Join(cgroupPath, "cpu.cfs_period_us")
+	cpuPeriodFile := filepath.Join(cpuCgroupPath, "cpu.cfs_period_us")
 	err = os.WriteFile(cpuPeriodFile, []byte("100000"), 0644)
 	if err != nil {
 		fmt.Printf("Error setting CPU period: %s\n", err)
 		return
 	}
-
-	// PID limits - limit to 10 processes/threads
-	pidsMaxFile := filepath.Join(cgroupPath, "pids.max")
-	err = os.WriteFile(pidsMaxFile, []byte("10"), 0644)
+	// Set PID limits
+	pidsMaxFile := filepath.Join(cpuCgroupPath, "pids.max")
+	err = os.WriteFile(pidsMaxFile, []byte("20"), 0644)
 	if err != nil {
 		fmt.Printf("Error setting PID limit: %s\n", err)
 		return
 	}
 
-	// Add PID to cgroup
-	procsFile := filepath.Join(cgroupPath, "cgroup.procs")
-	err = os.WriteFile(procsFile, []byte(fmt.Sprintf("%d", pid)), 0644)
+	// Add PID to CPU cgroup
+	cpuProcsFile := filepath.Join(cpuCgroupPath, "cgroup.procs")
+	err = os.WriteFile(cpuProcsFile, []byte(fmt.Sprintf("%d", pid)), 0644)
 	if err != nil {
-		fmt.Printf("Error adding PID to cgroup: %s\n", err)
+		fmt.Printf("Error adding PID to CPU cgroup: %s\n", err)
 		return
 	}
+
 }
 
 func cleanupCgroups(hostname string) {
-	// Remove single cgroup folder
-	cgroupPath := filepath.Join("/sys/fs/cgroup", hostname)
-	err := os.RemoveAll(cgroupPath)
+	// Clean up CPU cgroup
+	cpuCgroupPath := filepath.Join("/sys/fs/cgroup/cpu", hostname)
+	err := os.RemoveAll(cpuCgroupPath)
 	if err != nil {
-		fmt.Printf("Error removing cgroup: %s\n", err)
+		fmt.Printf("Error removing CPU cgroup: %s\n", err)
 	}
 }

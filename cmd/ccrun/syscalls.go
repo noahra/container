@@ -25,9 +25,6 @@ func createNameSpaces(args []string) exec.Cmd {
 			},
 		},
 	}
-	if err := cmd.Run(); err != nil {
-		fmt.Println(err)
-	}
 	return cmd
 }
 
