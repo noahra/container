@@ -35,6 +35,8 @@ I made this repo to learn how containerisation works by building a minimal conta
 - Much heavier resource overhead
 - Complete isolation at the hardware level
 
+![Alt text](assets/containersvsvms.png)
+
 ### How my container works:
 1. Parent process creates child with new namespaces
 2. Child process sets up its isolated environment (hostname, filesystem, /proc)
