@@ -54,7 +54,7 @@ I made this repo to learn how containerisation works by building a minimal conta
 - Linux system (required for namespaces and cgroups). I used VMware Fusion with Alpine Linux since I'm on an Apple machine.
 - Go installed
 - Root/sudo access (needed for namespaces and cgroups operations)
-- An `alpine_fs` directory with a minimal filesystem (you can extract from an Alpine Linux rootfs). I got one from https://www.alpinelinux.org/downloads/
+- An `alpine_fs` directory with a minimal filesystem. I got one from https://www.alpinelinux.org/downloads/
 
 **Build and run:**
 ```bash
