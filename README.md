@@ -45,3 +45,22 @@ I made this repo to learn how containerisation works by building a minimal conta
 - Namespaces limit what you can see (hostname, processes, filesystem)
 - Cgroups limit what resources you can use (CPU, memory)
 - My code proves containers are just isolated processes, not mini-VMs!
+
+### How to Run It
+
+**Prerequisites:**
+- Linux system (required for namespaces and cgroups). I used VMware Fusion with Alpine Linux since I'm on an Apple machine.
+- Go installed
+- Root/sudo access (needed for namespaces and cgroups operations)
+- An `alpine_fs` directory with a minimal filesystem (you can extract from an Alpine Linux rootfs). I got one from https://www.alpinelinux.org/downloads/
+
+**Build and run:**
+```bash
+# Build the container runtime
+make build
+
+# Run a shell in the container
+sudo ./container /bin/sh
+
+# Or with any other command available in your alpine_fs
+sudo ./container /bin/cat /etc/hostname

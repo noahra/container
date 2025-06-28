@@ -1,7 +1,7 @@
-# Makefile for ccrun - Docker clone project
+# Makefile for container - Docker clone project
 
 # Binary name
-BINARY_NAME=ccrun
+BINARY_NAME=container
 
 # Go parameters
 GOCMD=go
@@ -12,7 +12,7 @@ GOGET=$(GOCMD) get
 GOMOD=$(GOCMD) mod
 
 # Source directory
-SRC_DIR=./cmd/ccrun
+SRC_DIR=./cmd/container
 
 # Build the binary
 build:
@@ -55,7 +55,7 @@ dev:
 # Show help
 help:
 	@echo "Available targets:"
-	@echo "  build       - Build the ccrun binary"
+	@echo "  build       - Build the container binary"
 	@echo "  build-linux - Build for Linux (cross-compile)"
 	@echo "  clean       - Remove build artifacts"
 	@echo "  test        - Run tests"
