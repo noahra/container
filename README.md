@@ -5,7 +5,7 @@ I made this repo to learn how containerisation works by building a minimal conta
 
 **The key insight**: A container is simply a process that has been isolated from other processes using Linux kernel features called namespaces and cgroups.
 
-### What my implementation shows:
+### What my implementation demonstrates:
 
 **Namespaces** provide isolation by limiting what a process can "see":
 - **UTS namespace**: Gives the container its own hostname (`container123`)
@@ -46,7 +46,7 @@ I made this repo to learn how containerisation works by building a minimal conta
 **TLDR:**
 - Namespaces limit what you can see (hostname, processes, filesystem)
 - Cgroups limit what resources you can use (CPU, memory)
-- My code proves containers are just isolated processes, not mini-VMs!
+- My code demosntrates that containers are just isolated processes, not mini-VMs!
 
 ### How to Run It
 
