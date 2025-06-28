@@ -1,10 +1,47 @@
-# ccrun
+# Containerisation Demo
 
-I am currently on step 2 with this challenge.
+### How does containerisation work?
+I made this repo to learn how containerisation works by building a minimal container runtime from scratch in Go. This demonstrates how containers differ from virtual machines at a fundamental level.
 
-What is left now is to
+**The key insight**: A container is simply a process that has been isolated from other processes using Linux kernel features called namespaces and cgroups.
 
-1. Read about UTS namespaces in Linux.
-2. Read about processes, and child processes, hostnames and NIS domains.
-3. Implement such that running a command will do it in a different hostname
-4. which forces me to learn about clone() system call in Linux
+### What my implementation shows:
+
+**Namespaces** provide isolation by limiting what a process can "see":
+- **UTS namespace**: Gives the container its own hostname (`container123`)
+- **PID namespace**: The container sees its own process tree (PID 1 inside the container)
+- **Mount namespace**: Isolates the filesystem view
+- **User namespace**: Maps container root (UID 0) to the host user
+
+**Cgroups** limit the resources a process can consume:
+- CPU throttling: Container gets max 50% of one CPU core (50ms out of every 100ms)
+- Process tracking: All container processes are grouped together
+
+**Filesystem isolation**:
+- `chroot` changes the root directory to `alpine_fs`
+- `/proc` is mounted to give the container its own process information
+
+### Container vs Virtual Machine:
+
+**Containers** (what I built):
+- Share the host OS kernel
+- Use kernel namespaces and cgroups for isolation
+- Are just isolated processes
+- Lightweight and fast to start
+
+**Virtual Machines**:
+- Run their own complete operating system
+- Use a hypervisor to virtualize hardware resources
+- Much heavier resource overhead
+- Complete isolation at the hardware level
+
+### How my container works:
+1. Parent process creates child with new namespaces
+2. Child process sets up its isolated environment (hostname, filesystem, /proc)
+3. Parent process configures cgroups to limit resources
+4. Container executes the requested command in this isolated environment
+
+**TLDR:**
+- Namespaces limit what you can see (hostname, processes, filesystem)
+- Cgroups limit what resources you can use (CPU, memory)
+- My code proves containers are just isolated processes, not mini-VMs!
