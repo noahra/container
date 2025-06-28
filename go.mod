@@ -1,3 +1,3 @@
-module www.github.com/noahra/ccrun
+module www.github.com/noahra/container
 
 go 1.23
