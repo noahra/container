@@ -10,32 +10,33 @@ func main() {
 	rFlag := flag.Bool("r", false, "Re-execute as container init process")
 	flag.Parse()
 	args := flag.Args()
-	if *rFlag {
-		err := setHostname(HOSTNAME)
-		if err != nil {
-			fmt.Printf("error occured when setting hostname (creating uts ns): %s", err)
-		}
-		err = setChroot("alpine_fs")
-		if err != nil {
-			fmt.Printf("error occured when executing chroot: %s", err)
-		}
-		err = mountProc()
-		if err != nil {
-			fmt.Printf("error occured when mounting /proc: %s", err)
-		}
 
-		err = executeCommand(args)
-		if err != nil {
-			fmt.Printf("error occured when executing command: %s", err)
-		}
-	} else {
+	if !*rFlag {
 		cmd := createNameSpaces(args)
 		if err := cmd.Start(); err != nil {
 			fmt.Println(err)
+			return
 		}
 		cg(cmd.Process.Pid, HOSTNAME)
 		cmd.Wait()
-
 		cleanupCgroups(HOSTNAME)
+		return
+	}
+
+	// Container init process path
+	if err := setHostname(HOSTNAME); err != nil {
+		fmt.Printf("error occurred when setting hostname: %s\n", err)
+		return
+	}
+	if err := setChroot("alpine_fs"); err != nil {
+		fmt.Printf("error occurred when executing chroot: %s\n", err)
+		return
+	}
+	if err := mountProc(); err != nil {
+		fmt.Printf("error occurred when mounting /proc: %s\n", err)
+		return
+	}
+	if err := executeCommand(args); err != nil {
+		fmt.Printf("error occurred when executing command: %s\n", err)
 	}
 }

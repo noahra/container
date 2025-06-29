@@ -66,3 +66,18 @@ sudo ./container /bin/sh
 
 # Or with any other command available in your alpine_fs
 sudo ./container /bin/cat /etc/hostname
+```
+
+
+### Understanding the `-r` (Reexec) Flag
+
+One of the key concepts in my container implementation is the **reexec pattern**, which is how the program bootstraps itself into the container environment.
+
+**How it works:**
+```bash
+# When you run this:
+sudo ./container /bin/sh
+
+# The program actually does this internally:
+# 1. Parent process (without -r): Sets up namespaces and cgroups
+# 2. Child process (with -r): Runs inside the new namespaces and sets up the container environment
