@@ -23,7 +23,6 @@ func main() {
 		return
 	}
 
-	// Container init process path
 	if err := setHostname(HOSTNAME); err != nil {
 		fmt.Printf("error occurred when setting hostname: %s\n", err)
 		return
