@@ -7,7 +7,7 @@ import (
 
 func main() {
 	const HOSTNAME = "container123"
-	rFlag := flag.Bool("r", false, "Enable r option")
+	rFlag := flag.Bool("r", false, "Re-execute as container init process")
 	flag.Parse()
 	args := flag.Args()
 	if *rFlag {
@@ -29,18 +29,12 @@ func main() {
 			fmt.Printf("error occured when executing command: %s", err)
 		}
 	} else {
-		fmt.Printf("DEBUG: Creating container process...\n")
 		cmd := createNameSpaces(args)
-
-		fmt.Printf("DEBUG: Waiting for container to finish...\n")
 		if err := cmd.Start(); err != nil {
 			fmt.Println(err)
 		}
-		fmt.Printf("DEBUG: Creating cgroup from host for PID %d\n", cmd.Process.Pid)
 		cg(cmd.Process.Pid, HOSTNAME)
-
 		cmd.Wait()
-		fmt.Printf("DEBUG: Cleaning up cgroups...\n")
 
 		cleanupCgroups(HOSTNAME)
 	}
